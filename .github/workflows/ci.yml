@@ -3,23 +3,46 @@ name: DevOps Java CI Automation Pipeline
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build-and-validate:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         java-version: [17, 21]
     steps:
+      - name: Record start time
+        run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
+
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup JDK
+      - name: Setup JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Compile
+        run: mvn compile
+
       - name: Run Unit Tests
         run: mvn test
+
+      - name: Package
+        run: mvn package
+
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-ready-jar-${{ matrix.java-version }}
+          path: target/*.jar
+
+      - name: Report lead time
+        if: always()
+        run: |
+          END_TIME=$(date +%s)
+          echo "Lead time: $((END_TIME - START_TIME)) seconds"
