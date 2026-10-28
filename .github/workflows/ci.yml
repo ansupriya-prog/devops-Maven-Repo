@@ -7,28 +7,19 @@ on:
 jobs:
   build-and-validate:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [17, 21]
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup JDK 17
+      - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Compile
-        run: mvn compile
-
       - name: Run Unit Tests
         run: mvn test
-
-      - name: Package
-        run: mvn package
-
-      - name: Upload JAR Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: production-ready-jar
-          path: target/*.jar

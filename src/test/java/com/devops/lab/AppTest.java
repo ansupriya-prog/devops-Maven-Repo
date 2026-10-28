@@ -1,19 +1,12 @@
 package com.devops.lab;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit test for simple App.
- */
 public class AppTest {
-
-    /**
-     * Rigorous Test :-)
-     */
     @Test
-    public void shouldAnswerWithTrue() {
-        assertTrue(true);
+    void bottleneckScenario() {
+        assertTimeoutPreemptively(Duration.ofMillis(500), () -> Thread.sleep(2000));
     }
 }
